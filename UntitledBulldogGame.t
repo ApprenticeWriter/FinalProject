@@ -1,7 +1,5 @@
 #charset "us-ascii"
 
-
-
 #include <adv3.h>
 #include <en_us.h>
 
@@ -16,36 +14,38 @@ versionInfo: GameID
     authorEmail = 'Carrie Bergstedt <cbergste@unca.edu>'
     desc = 'My senior project! '
     htmlDesc = 'My senior project! '
+    
+    showAbout(){
+        "This is a senior project intended to be both a moderately fun game and tour of the University of 
+        North Carolina at Asheville's campus!";
+        //flesh this out w common commands n stuff later
+    }
 ;
 
 gameMain: GameMainDef
     /* the initial player character is 'me' */
     initialPlayerChar = me
+    
+    showIntro(){
+        "You wake up from the sound of a rather sturdy popping noise, which probably indicates that some absolute nonsense is on its way.
+        Said nonsense rather immediately resolves itself to be a resounding lack of coffee in the room. Or, for that matter, anything with 
+        which coffee could be made. You'd best go fetch some coffee, then!";
+    }
 ;
 
 /* 
- *   Starting location - we'll use this as the player character's initial
- *   location.  The name of the starting location isn't important to the
- *   library, but note that it has to match up with the initial location
- *   for the player character, defined in the "me" object below.
- *   
- *   Our definition defines two strings.  The first string, which must be
- *   in single quotes, is the "name" of the room; the name is displayed on
- *   the status line and each time the player enters the room.  The second
- *   string, which must be in double quotes, is the "description" of the
- *   room, which is a full description of the room.  This is displayed when
- *   the player types "look around," when the player first enters the room,
- *   and any time the player enters the room when playing in VERBOSE mode.
- *   
- *   The name "startRoom" isn't special - you can change this any other
- *   name you'd prefer.  The player character's starting location is simply
- *   the location where the "me" actor is initially located.  
+ *   Starting location 
  */
 RHRO216: Room
     roomName='room 216 in Rhoades Robinson'
     desc="You're in room 216 in the Rhoades Robinson building, the designated undergraduate research room for CSCI.
-        The room is completely stuffed with furnature and computers."
-    west=RHRO2ndFloorLobby
+        The room is completely stuffed with furnature and computers. The exit door is to the west."
+    //west=RHRO2ndFloorLobby
+    west : OneWayRoomConnector{
+        destination=RHRO2ndFloorLobby
+        canTravelerPass(traveler) { return chair.isIn(traveler); } //change so it only checks if the chair is in the room
+        explainTravelBarrier(traveler) {"The furniture is blocking your path to the exit.";}
+    }
 ;
 
 +Decoration 'white board/whiteboard/board' 'whiteboard'
@@ -54,13 +54,14 @@ RHRO216: Room
 +Decoration 'window/windows' 'window'
     "The windows overlook the main quad on campus. There really isn't anything going on out there, but the weather looks nice."
 ;
-+desk : Heavy, Surface 'desk' 'desk' "A simple, largeish desk. It's got a desktop computer on top of it.";
-++desktop : Thing 'desktop/desktop computer/computer' 'desktop' 
-    "A plain desktop computer. It's a few years old, but still perfectly usable.";
 +table : Heavy, Surface 'table/large table' 'table' "A large, plain table.  
     It sits dead center of the room and eats up a lot of space.";
-
++chair : Thing 'chair' 'chair'
+    "A sturdy but plain chair, servicable for all your chair-based needs.";
 + me: Actor
+    pcDesc = "You're a robotic version of Rocky the Bulldog, or RoboRocky for short! And you're fully equipped with an 
+        infinite inventory and a grabber claw to get things to put into said inventory. Perfect for the kind of nonsense
+        you tend to deal with on a regular basis."
 ;
 
 RHRO2ndFloorLobby: Room
@@ -68,7 +69,14 @@ RHRO2ndFloorLobby: Room
     "You're in the 2nd floor lobby of Rhoades Robinson. There's a small seating area and an elevator that is currently out of order.
     Room 216 is to the east; there are hallways to the north, south, and west, and a stairwell to the southeast."
     east=RHRO216
-    southwest=RHRO2ndFloorStairwell
+    southeast=RHRO2ndFloorStairwell
+    north : DeadEndConnector{"You wander down the hallway a bit before running into a freshly-mopped floor, 
+        forcing you to turn back."
+    }
+    south : DeadEndConnector{"You manage to get a few yards down the hallway before being blocked by a 
+        group of freshman who clearly aren't going to move any time soon. You head back to the lobby."}
+    west : DeadEndConnector{"You get most of the way down the hallway before being blocked by Atmospheric Science students
+        arguing over the latest weather reports. Best to leave them be and head back to the lobby."}
 ;
 
 +Decoration 'seating area/seats' 'seating area' "Two chairs and coffee table. Useful for waiting for classes.";
@@ -81,6 +89,19 @@ RHRO2ndFloorStairwell: Room
     northeast=RHRO2ndFloorLobby
     up=RHRO3rdFloorStairwell
     down=RHRO1stFloorStairwell
+    //put list of places to get coffee here?
+;
+
++coffeeNotebook: Readable 'notebook/coffee-stained notebook' 'coffee-stained notebook'
+    "It's a small notebook that has a number of various coffee stains on it."
+    
+    readDesc="You peel open the notebook and flip through it. There isn't a ton left readable by this point, 
+        but you can make out a list of locations on campus- the Math Lab, Dining Hall, Library, 
+        Rosetta's Kitchenette, the Down Under, and the Student Union. After figuring that 
+        was the only thing of note in the notebook, you flop it shut."
+    
+    dobjFor(Open) asDobjFor(Read)
+    cannotCloseMsg = 'It\'s already closed. '
 ;
 
 RHRO3rdFloorStairwell: Room
