@@ -45,7 +45,7 @@ RHRO216: Room
         destination=RHRO2ndFloorLobby
         canTravelerPass(traveler) { return chair.isIn(traveler); } //change so it only checks if the chair is in the room
         explainTravelBarrier(traveler) {"The furniture is blocking your path to the exit.";}
-    }
+    }//block re-entering here unless you have coffee
 ;
 
 +Decoration 'white board/whiteboard/board' 'whiteboard'
@@ -101,7 +101,18 @@ RHRO2ndFloorStairwell: Room
         was the only thing of note in the notebook, you flop it shut."
     
     dobjFor(Open) asDobjFor(Read)
+    
+    dobjFor(Read)
+    {
+        action()
+        {
+            inherited;
+            achievement.awardPointsOnce();
+        }
+    }
+    
     cannotCloseMsg = 'It\'s already closed. '
+    achievement: Achievement { +5 "reading the notebook" }
 ;
 
 RHRO3rdFloorStairwell: Room
@@ -121,9 +132,31 @@ RHRO1stFloorStairwell: Room
 RHRO3rdFloor: Room
     '3rd Floor in Rhoades Robinson'
     "You're in a hallway that's surprisingly well traveled for all its composition of mainly offices.
-    The campus Math Lab is at the end of the hall."
+    The Math Lab is at the end of the hall."
     west= RHRO3rdFloorStairwell
-    //add in the math lab as a decoration? It's def closed at the least
+;
+
++MathLab : RoomPartItem, Decoration 'Math Lab' 'Math Lab'
+    "The main place on campus for getting help with math or statistics. The employees usually have a pot of coffee going,
+    but it looks like the place has been locked up for the day. "
+    dobjFor(Examine)
+    {
+     action()
+     {
+       achievement.awardPointsOnce();
+       inherited;
+     }
+   }
+   achievement : Achievement { +3 "Found the Math Lab" } 
+;
+;//award points for examining the first time only, change to something other than decoration?
+
++smallBookshelf : Surface, Fixture 'small bookshelf/bookshelf/bookcase' 'small bookshelf'
+    "A small bookshelf that has seen better days and more interesting contents than what it currently has."
+;
+
+++crumpledHat : Hidden, Wearable 'crumpled hat' 'crumpled hat'
+    "A small festive-looking hat which has been rather crumpled."
 ;
 
 RHRO1stFloorLobby: Room
@@ -185,16 +218,24 @@ FrontOfLibrary: OutdoorRoom
 
 LibraryLobby: Room
     'Lobby of the Library'
-    "You're in the lobby of the library. It's rather impressive, if a bit dated."
+    "You're in the lobby of the library. It's rather impressive, if a bit dated. North will take you further into the
+    building, south will take you back outside, and west takes you into Argo Tea."
     //the tea shop goes in here somewhere; probably closed
     north=LibraryInterior
-    south=FrontOfLibrary
+    south=FrontOfLibrary//can't leave library until you obtain something from the library interior
+    west: DeadEndConnector {"You try to nudge your way into Argo Tea, but you simply can't manage to get around
+        the mass of students in the queue, which is by this point winding well past the door. "
 ;
     
 LibraryInterior: Room
     'Inside Library'
-    "You're inside the library proper. It's a rather lively area."
+    "You're inside the library proper. It's a rather lively area, with lots of students about working on various things
+    and a very, very large number of bookshelves."
     south=LibraryLobby
+;
+
++largeBookshelf: Surface,Fixture 'large bookshelf/bookshelf/bookcase' 'large bookshelf'
+    "A large bookshelf containing the libarian's current themed book display."
 ;
 
 Quad: OutdoorRoom
