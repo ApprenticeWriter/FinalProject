@@ -224,7 +224,7 @@ LibraryLobby: Room
     north=LibraryInterior
     south=FrontOfLibrary//can't leave library until you obtain something from the library interior
     west: DeadEndConnector {"You try to nudge your way into Argo Tea, but you simply can't manage to get around
-        the mass of students in the queue, which is by this point winding well past the door. "
+        the mass of students in the queue, which is by this point winding well past the door. ";}
 ;
     
 LibraryInterior: Room
