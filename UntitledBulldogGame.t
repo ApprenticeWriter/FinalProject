@@ -52,7 +52,8 @@ RHRO216: Room
     "The large whiteboard covers the entire south wall. It is currently emblazioned with the phrase OUT OF COFFEE."
 ;
 +Decoration 'window/windows' 'window'
-    "The windows overlook the main quad on campus. There really isn't anything going on out there, but the weather looks nice."
+    "The windows overlook the main quad on campus. There really isn't anything going on out there
+    other than the setup for some sort of event, but the weather looks nice."
 ;
 +table : Heavy, Surface 'table/large table' 'table' "A large, plain table.  
     It sits dead center of the room and eats up a lot of space.";
@@ -117,14 +118,14 @@ RHRO2ndFloorStairwell: Room
 
 RHRO3rdFloorStairwell: Room
     roomName='3rd Floor Stairwell in Rhoades Robinson'
-    desc="You're in a well-used stairwell that continues down. The exit to the 3rd floor is to the north."
+    desc="You're in a well-used stairwell that continues down. The exit to the 3rd floor is to the east."
     east= RHRO3rdFloor
     down=RHRO2ndFloorStairwell
 ;
 
 RHRO1stFloorStairwell: Room
     '1st Floor Stairwell in Rhoades Robinson'
-    "You're in a well-used stairwell that continues up. The exit to the lobby is to the north."
+    "You're in a well-used stairwell that continues up. The exit to the lobby is to the east."
     east=RHRO1stFloorLobby
     up=RHRO2ndFloorStairwell
 ;
@@ -161,49 +162,70 @@ RHRO3rdFloor: Room
 
 RHRO1stFloorLobby: Room
     '1st Floor Lobby in Rhoades Robinson'
-    "You're in the main lobby for the Rhoades Robinson building. There's a couple of seating arangements and a handful of exits."
+    "You're in the main lobby for the Rhoades Robinson building. 
+    There's a couple of seating arangements and a handful of exits."
     south=RHROAtrium
     west=RHRO1stFloorStairwell
-    northwest=Quad //block off this exit for most of the game
+    //northwest=Quad //block off this exit for most of the game
+    northwest: OneWayRoomConnector{
+        destination=Quad
+        canTravelerPass(traveler) { return partyFlyer.isIn(traveler); } 
+        explainTravelBarrier(traveler) {"You're not going out into all that setup without knowing exactly what's going on first.";}
+    }
 ;
 
 RHROAtrium: Room
     'Large Glass Room in Rhoades Robinson'
-    "You're in a large room with several glass-pane walls letting in lots of light."
+    "You're in a large room with several glass-pane walls letting in lots of light. The first floor lobby is to the north;
+    there's an outdoor seating area visible through the glass to the west."
     north=RHRO1stFloorLobby
     west=OutdoorSeatingArea
 ;
 
 OutdoorSeatingArea: OutdoorRoom
     'An Outdoor Seating Area'
-    "You're by a smallish outdoor seating area. It looks like a good place for some reading when the weather cooperates."
+    "You're by a smallish outdoor seating area. It looks like a good place for some reading when the weather cooperates.
+    To the east is the Atrium; the northwest has the Quad, and to the southeast lies the dining hall."
     east=RHROAtrium
-    northwest=Quad //block off this exit for most of the game
+    northwest: OneWayRoomConnector{
+        destination=Quad
+        canTravelerPass(traveler) { return partyFlyer.isIn(traveler); } 
+        explainTravelBarrier(traveler) {"You're not going out into all that setup without knowing exactly what's going on first.";}
+    }
     southeast=DiningHall
 ;
 
 DiningHall: Room
     'Brown Dining Hall'
-    "You're in the campus's dining hall. 
-    There's a handful of students about nibbling at food while working on schoolwork and projects."
+    "You're in front of the campus dining hall. The Outdoor Seating Area is to the north, the student union to the southwest,
+    and the back sidewalk path runs to the north."
     north=SidewalkToZeis
     northwest=OutdoorSeatingArea
     southwest=SUBridge
 ;
-
-SidewalkToZeis: OutdoorRoom
++SidewalkToZeis: PathPassage 'Back Sidewalk Path' 'Back Sidewalk Path'
+    "This longish sidewalk runs behind the Rhoades-Robinson Building. "
+;
+/*SidewalkToZeis: OutdoorRoom
     'Sidewalk To Zeis'
     "You're on the sidewalk connecting the dining hall to Zeis Hall."
     south=DiningHall
     west=StairwellToRocks
-;
+;*/
 
 StairwellToRocks: OutdoorRoom
     'Top of a Stairwell by some Rocks'
-    "You're at the top of a stairwell by a collection of large rocks."
+    "You're at the top of a stairwell by a collection of large rocks. To the west is the front of the library;
+    to the east is the back sidewalk path."
     //include some of the rocks to look at here!
-    east=SidewalkToZeis
+    east=SidewalkTZ
     west=FrontOfLibrary
+;
++SidewalkTZ: ThroughPassage -> SidewalkToZeis 'Back Sidewalk Path' 'Back Sidewalk Path'
+;
++Decoration 'large rocks/rock' 'large rocks'
+    "A dozen or so very large rocks. They're all labeled with what kind of rock they are. Too bad you don't know enough
+    about geology to really bother with them."
 ;
 
 FrontOfLibrary: OutdoorRoom
@@ -211,7 +233,11 @@ FrontOfLibrary: OutdoorRoom
     "You're standing right out front of the library doors. The view from here is truely a sight to behold."
     //include picture from the library steps here, possibly when player examines room
     north=LibraryLobby
-    south=Quad
+    south: OneWayRoomConnector{
+        destination=Quad
+        canTravelerPass(traveler) { return partyFlyer.isIn(traveler); } 
+        explainTravelBarrier(traveler) {"You're not going out into all that setup without knowing exactly what's going on first.";}
+    }
     east=StairwellToRocks
     northwest=SidewalkToSculptures
 ;
@@ -225,12 +251,13 @@ LibraryLobby: Room
     south=FrontOfLibrary//can't leave library until you obtain something from the library interior
     west: DeadEndConnector {"You try to nudge your way into Argo Tea, but you simply can't manage to get around
         the mass of students in the queue, which is by this point winding well past the door. ";}
+    
 ;
     
 LibraryInterior: Room
     'Inside Library'
     "You're inside the library proper. It's a rather lively area, with lots of students about working on various things
-    and a very, very large number of bookshelves."
+    and a very, very large number of bookshelves, one of which is fairly close by to you."
     south=LibraryLobby
 ;
 
@@ -241,7 +268,7 @@ LibraryInterior: Room
 Quad: OutdoorRoom
     'The Quad'
     "You're on the main quad. It's a grassy field with a flagpole in the middle, criss-crossed by sidewalks.
-    There are buildings on all four sides of the quad and major exits on the corners."
+    There are buildings on all four sides of the quad and major exits on the corners, and quite the party going on in the middle!"
     north=FrontOfLibrary
     east=RHRO1stFloorLobby
     west=KarpenLobby
@@ -290,7 +317,11 @@ BusStop: OutdoorRoom
     west=Rocky
     south=SUBridge
     northwest=Ponder
-    southeast=Quad
+    southeast: OneWayRoomConnector{
+        destination=Quad
+        canTravelerPass(traveler) { return partyFlyer.isIn(traveler); } 
+        explainTravelBarrier(traveler) {"You're not going out into all that setup without knowing exactly what's going on first.";}
+    }
 ;
 
 SUBridge:OutdoorRoom
@@ -318,9 +349,14 @@ SU1stFloor: Room
 
 Ponder: Room
     'Ponder Hall Lobby'
-    "You're in the lobby of Ponder Hall. It's got a nice mural of some mountains on one wall, plus a large staircase to downstairs."
+    "You're in the lobby of Ponder Hall. It's got a nice mural of some mountains on one wall, plus a large staircase leading down."
     down=Dunder
     southeast=BusStop
+;
+
++dormEntry: RoomPartItem, Decoration 'doors/dorm entry doors/dorm entry' 'Dorm Entry Doors'
+    "The double doors that lead into the actual living spaces of Ponder Hall. You're not allowed past 'em, 
+    not since the Potato Incident of Fall '22."
 ;
 
 Dunder: Room
@@ -328,8 +364,19 @@ Dunder: Room
     "You're in The Down Under food stop/convenience store. Most of the students shorten the name to 'Dunder."
     up=Ponder
 ;
-
-
+//add in a party flyer or something here; use it as a key to get into the student union and the quad
++partyFlyer : Thing 'flyer/party flyer' 'Party Flyer'
+    "It's a flyer for the latest event Asheville Campus Entertainment is putting on. Looks like it'll be fun!"
+    dobjFor(Examine)
+    {
+     action()
+     {
+       achievement.awardPointsOnce();
+       inherited;
+     }
+   }
+   achievement : Achievement { +5 "Party Time!" }
+;
 
 
 
