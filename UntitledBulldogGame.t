@@ -45,7 +45,7 @@ RHRO216: Room
         destination=RHRO2ndFloorLobby
         canTravelerPass(traveler) { return chair.isIn(traveler); } //change so it only checks if the chair is in the room
         explainTravelBarrier(traveler) {"The furniture is blocking your path to the exit.";}
-    }//block re-entering here unless you have coffee
+    }
 ;
 
 +Decoration 'white board/whiteboard/board' 'whiteboard'
@@ -69,7 +69,11 @@ RHRO2ndFloorLobby: Room
     '2nd floor lobby in Rhoades Robinson'
     "You're in the 2nd floor lobby of Rhoades Robinson. There's a small seating area and an elevator that is currently out of order.
     Room 216 is to the east; there are hallways to the north, south, and west, and a stairwell to the southeast."
-    east=RHRO216
+    east: OneWayRoomConnector{
+        destination=RHRO216
+        canTravelerPass(traveler) { return coffee.isIn(traveler); } 
+        explainTravelBarrier(traveler) {"No sense going back there without any coffee.";}
+    }//somehow put finishgamemsg in here? as part of a travelmessage
     southeast=RHRO2ndFloorStairwell
     north : DeadEndConnector{"You wander down the hallway a bit before running into a freshly-mopped floor, 
         forcing you to turn back."
@@ -90,7 +94,6 @@ RHRO2ndFloorStairwell: Room
     northeast=RHRO2ndFloorLobby
     up=RHRO3rdFloorStairwell
     down=RHRO1stFloorStairwell
-    //put list of places to get coffee here?
 ;
 
 +coffeeNotebook: Readable 'notebook/coffee-stained notebook' 'coffee-stained notebook'
@@ -217,7 +220,6 @@ StairwellToRocks: OutdoorRoom
     'Top of a Stairwell by some Rocks'
     "You're at the top of a stairwell by a collection of large rocks. To the west is the front of the library;
     to the east is the back sidewalk path."
-    //include some of the rocks to look at here!
     east=SidewalkTZ
     west=FrontOfLibrary
 ;
@@ -278,9 +280,20 @@ Quad: OutdoorRoom
 
 KarpenLobby: Room
     'Lobby of Karpen'
-    "You're in the main lobby of Karpen Hall. It's a well-maintained area with some seating around the edges."
+    "You're in the main lobby of Karpen Hall. It's usually a well-maintained area with some seating around the edges,
+    but right now it's a bit of a mess from everything the art students are doing."
     east=Quad
-    //input Laurel Forum at some point?
+    //add in unopened bag of coffee in pile of free stuff as a hidden item- taking this back to 216 wins the game
+;
+
++ Decoration 'small pile/things' 'pile of things'
+    "A medium-sized pile of odds and ends that were evidently intended as art supplies <<coffee.moved ? nil :',
+        including an unopened bag of coffee grounds'>>.<<coffee.discover>>"
+    dobjFor(Search) asDobjFor(Examine)
+;
+
++ coffee: Hidden 'unopened bag of coffee grounds' 'coffee'
+    "An average-sized bag of coffee grounds, for use with your average coffee machine."
 ;
 
 SidewalkToSculptures: OutdoorRoom
@@ -303,11 +316,18 @@ Rocky: OutdoorRoom
     south=BusStop
     east=Sculptures
     west=Rosettas
+    //add in statue of rocky; putting a hat on the statue gets an achievement
 ;
 
 Rosettas: Room
     'Rosettas Kitchenette'
-    "You're standing inside Rosetta's Kitchenette. It's an auxilary site for a veggie/vegan place downtown, and it's pretty popular."
+    "You're standing inside Rosetta's Kitchenette. It's an auxilary site for a veggie/vegan place downtown, 
+    and it's usually pretty popular... when it's open at least. Looks like the employees are closing up shop for the day."
+    enteringRoom(traveler)
+     {       
+       if(!traveler.hasSeen(self) && traveler == gPlayerChar)   
+         addToScore(3, 'finding yet another location out of coffee. ');              
+     } 
     east=Rocky
 ;
 
@@ -337,15 +357,8 @@ SU2ndFloor: Room
     "You're on the second floor of the student union. There's plenty of little areas to sit and study, not to mention the coffee shop!"
     //impliment Roasted coffee shop
     east=SUBridge
-    down=SU1stFloor
 ;
 
-SU1stFloor: Room
-    'First floor of the Student Union'
-    "You're on the first floor of the student union. There's a handful of different seating areas, but most of the floorspace is the food court."
-    //impliment food court
-    up=SU2ndFloor
-;
 
 Ponder: Room
     'Ponder Hall Lobby'
@@ -364,7 +377,7 @@ Dunder: Room
     "You're in The Down Under food stop/convenience store. Most of the students shorten the name to 'Dunder."
     up=Ponder
 ;
-//add in a party flyer or something here; use it as a key to get into the student union and the quad
+//party flyer is key to getting into the quad
 +partyFlyer : Thing 'flyer/party flyer' 'Party Flyer'
     "It's a flyer for the latest event Asheville Campus Entertainment is putting on. Looks like it'll be fun!"
     dobjFor(Examine)
