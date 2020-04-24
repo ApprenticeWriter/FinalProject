@@ -84,7 +84,7 @@ RHRO2ndFloorLobby: Room
         destination=RHRO216
         canTravelerPass(traveler) { return coffee.isIn(traveler); } 
         explainTravelBarrier(traveler) {"No sense going back there without any coffee.";}
-    }//somehow put finishgamemsg in here? as part of a travelmessage
+    }
     southeast=RHRO2ndFloorStairwell
     north : DeadEndConnector{"You wander down the hallway a bit before running into a freshly-mopped floor, 
         forcing you to turn back."
@@ -162,9 +162,8 @@ RHRO3rdFloor: Room
        inherited;
      }
    }
-   achievement : Achievement { +3 "Found the Math Lab" } 
+   achievement : Achievement { +3 "Found the Math Lab" };
 ;
-;//award points for examining the first time only, change to something other than decoration?
 
 +smallBookshelf : Surface, Fixture 'small bookshelf/bookshelf/bookcase' 'small bookshelf'
     "A small bookshelf that has seen better days and more interesting contents than what it currently has."
@@ -208,14 +207,18 @@ OutdoorSeatingArea: OutdoorRoom
     }
     southeast=DiningHall
 ;
++Decoration 'outdoor seating area/seats' 'outdoor seating area' "A set of two wooden tables and some matching chairs.
+    Currently, the further away one is hosting a student taking a nap.";
 
 DiningHall: Room
     'Brown Dining Hall'
-    "You're in front of the campus dining hall. The Outdoor Seating Area is to the north, the student union to the southwest,
-    and the back sidewalk path runs to the north."
+    "You're in front of the campus dining hall. The Outdoor Seating Area is to the northwest, the student union to the southwest,
+    the interior of the dining hall is to the east, and the back sidewalk path runs to the north."
     north=SidewalkToZeis
     northwest=OutdoorSeatingArea
     southwest=SUBridge
+    east : FakeConnector {"One glance in through the window shows a visiting school group crowding the whole dining area.
+        Nope, not worth going inside right now."}
 ;
 +SidewalkToZeis: PathPassage 'Back Sidewalk Path' 'Back Sidewalk Path'
     "This longish sidewalk runs behind the Rhoades-Robinson Building. "
@@ -275,19 +278,20 @@ LibraryInterior: Room
 ;
 
 +largeBookshelf: Surface,Fixture 'large bookshelf/bookshelf/bookcase' 'large bookshelf'
-    "A large bookshelf containing the libarian's current themed book display."
+    "A large bookshelf containing the libarian's current themed book display. Nothing related to your current quest, unfortunately."
 ;
 
 Quad: OutdoorRoom
     'The Quad'
     "You're on the main quad. It's a grassy field with a flagpole in the middle, criss-crossed by sidewalks.
-    There are buildings on all four sides of the quad and major exits on the corners, and quite the party going on in the middle!"
+    There are buildings on all four sides of the quad and major exits on the corners, and quite the party going on in between!"
     north=FrontOfLibrary
     east=RHRO1stFloorLobby
     west=KarpenLobby
     southeast=BusStop
     northwest=SidewalkToSculptures
 ;
++Decoration 'flagpole' 'flagpole' "A large flagpole bearing the national, state, and school flags. Very photogenic.";
 
 KarpenLobby: Room
     'Lobby of Karpen'
@@ -321,13 +325,13 @@ Sculptures: OutdoorRoom
 ;
 
 Rocky: OutdoorRoom
-    'Rocky the Bulldog the Statue'
+    'Rocky the Bulldog Statue'
     "You're standing by the best artwork on campus- the statue of Rocky the Bulldog!"
     south=BusStop
     east=Sculptures
     west=Rosettas
-    //add in statue of rocky; putting a hat on the statue gets an achievement
 ;
++Decoration 'Rocky/Bulldog Statue' 'Rocky Statue' "It's a larger-than-life statue of your namesake!";
 
 Rosettas: Room
     'Rosettas Kitchenette'
@@ -365,8 +369,20 @@ SUBridge:OutdoorRoom
 SU2ndFloor: Room
     'Second floor of the Student Union'
     "You're on the second floor of the student union. There's plenty of little areas to sit and study, not to mention the coffee shop!"
-    //impliment Roasted coffee shop
     east=SUBridge
+;
++Roasted: RoomPartItem, Decoration 'Roasted Coffee Shop' 'Coffee Shop' 
+    "The main coffee shop on campus, which came in with the most recent renovation. There's a fair line going- looks like 
+    you're not getting anything from here today."
+    dobjFor(Examine)
+    {
+     action()
+     {
+       achievement.awardPointsOnce();
+       inherited;
+     }
+    }
+    achievement : Achievement { +3 "Found the Math Lab" };
 ;
 
 
@@ -384,7 +400,8 @@ Ponder: Room
 
 Dunder: Room
     'The Down Under'
-    "You're in The Down Under food stop/convenience store. Most of the students shorten the name to 'Dunder."
+    "You're in The Down Under food stop/convenience store. Most of the students shorten the name to 'Dunder. It may
+    be open late, but it looks like it's closed for now."
     up=Ponder
 ;
 //party flyer is key to getting into the quad
