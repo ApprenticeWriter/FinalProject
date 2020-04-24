@@ -39,12 +39,20 @@ gameMain: GameMainDef
 RHRO216: Room
     roomName='room 216 in Rhoades Robinson'
     desc="You're in room 216 in the Rhoades Robinson building, the designated undergraduate research room for CSCI.
-        The room is completely stuffed with furnature and computers. The exit door is to the west."
+        The room is completely stuffed with furnature and computers, and a set of windows on the east wall. 
+        The exit door is to the west."
     //west=RHRO2ndFloorLobby
     west : OneWayRoomConnector{
         destination=RHRO2ndFloorLobby
         canTravelerPass(traveler) { return chair.isIn(traveler); } //change so it only checks if the chair is in the room
         explainTravelBarrier(traveler) {"The furniture is blocking your path to the exit.";}
+    }
+    enteringRoom (traveler) {
+        "You just barely manage to get into the room before bumping into a rather frazzled computer science student. They
+        give you a confused look that quickly turns into joy as you hand them the bag of coffee. Thrilled with the new 
+        source of caffiene, they immediately start the coffee machine to brewing. Looks like a job well done!";
+        addToScore(5,'fetched coffee');
+        finishGameMsg(ftVictory, [finishOptionUndo,finishOptionFullScore]); 
     }
 ;
 
@@ -54,6 +62,9 @@ RHRO216: Room
 +Decoration 'window/windows' 'window'
     "The windows overlook the main quad on campus. There really isn't anything going on out there
     other than the setup for some sort of event, but the weather looks nice."
+;
++Decoration 'computer/computers' 'computer'
+    "An ordinary but useful desktop computer. Good for doing schoolwork between classes."
 ;
 +table : Heavy, Surface 'table/large table' 'table' "A large, plain table.  
     It sits dead center of the room and eats up a lot of space.";
@@ -283,7 +294,6 @@ KarpenLobby: Room
     "You're in the main lobby of Karpen Hall. It's usually a well-maintained area with some seating around the edges,
     but right now it's a bit of a mess from everything the art students are doing."
     east=Quad
-    //add in unopened bag of coffee in pile of free stuff as a hidden item- taking this back to 216 wins the game
 ;
 
 + Decoration 'small pile/things' 'pile of things'
@@ -294,7 +304,7 @@ KarpenLobby: Room
 
 + coffee: Hidden 'unopened bag of coffee grounds' 'coffee'
     "An average-sized bag of coffee grounds, for use with your average coffee machine."
-;
+;//add big achievement for obtaining
 
 SidewalkToSculptures: OutdoorRoom
     'Sidewalk to some Sculptures'
